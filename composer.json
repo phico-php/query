@@ -25,9 +25,7 @@
     }
   },
   "require": {
-    "php": "^8.0",
-    "phico/logger": "dev-main",
-    "phico/support": "dev-main"
+    "php": "^8.0"
   },
   "require-dev": {
     "phpstan/phpstan": "*",
