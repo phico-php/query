@@ -57,6 +57,8 @@ $query->getParams();
 
 ## Issues
 
+This is still under development and some features will be missing until I need them.
+
 If you discover any bugs or issues with behaviour or performance please create an issue, if you are able a pull request with a fix would be most helpful.
 
 Please make sure to update tests as appropriate.
