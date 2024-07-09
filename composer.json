@@ -1,0 +1,36 @@
+{
+  "name": "phico/query",
+  "description": "Lightweight SQL query builder, designed for Phico",
+  "type": "library",
+  "license": "BSD-3-Clause",
+  "minimum-stability": "dev",
+  "autoload": {
+    "psr-4": {
+      "Phico\\Query\\": "src/"
+    },
+    "files": [
+      "src/functions.php"
+    ]
+  },
+  "authors": [
+    {
+      "name": "indgy",
+      "email": "me@indgy.uk"
+    }
+  ],
+  "config": {
+    "allow-plugins": {
+      "phpstan/extension-installer": true,
+      "pestphp/pest-plugin": true
+    }
+  },
+  "require": {
+    "php": "^8.0",
+    "phico/logger": "dev-main",
+    "phico/support": "dev-main"
+  },
+  "require-dev": {
+    "phpstan/phpstan": "*",
+    "pestphp/pest": "^2.34"
+  }
+}
