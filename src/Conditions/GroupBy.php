@@ -9,14 +9,12 @@ class GroupBy
     protected string $dir;
 
 
-    public function __construct(string $column, string $dir = '')
+    public function __construct(string $column)
     {
-        $dir = strtoupper($dir);
-        $this->dir = in_array($dir, ['ASC', 'DESC']) ? $dir : '';
         $this->column = $column;
     }
     public function toSql(string $dialect): string
     {
-        return trim("{$this->column} {$this->dir}");
+        return $this->column;
     }
 }
