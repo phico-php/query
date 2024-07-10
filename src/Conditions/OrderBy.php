@@ -2,6 +2,8 @@
 
 namespace Phico\Query\Conditions;
 
+use Phico\Query\Quote;
+
 
 class OrderBy
 {
@@ -17,6 +19,10 @@ class OrderBy
     }
     public function toSql(string $dialect): string
     {
-        return trim("{$this->column} {$this->dir}");
+        $out = (str_contains($this->column, '(') and str_contains($this->column, ')'))
+            ? sprintf('%s %s', $this->column, $this->dir)
+            : sprintf('%s %s', Quote::column($this->column, $dialect), $this->dir);
+
+        return trim($out);
     }
 }

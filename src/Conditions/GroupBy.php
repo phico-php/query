@@ -2,6 +2,8 @@
 
 namespace Phico\Query\Conditions;
 
+use Phico\Query\Quote;
+
 
 class GroupBy
 {
@@ -15,6 +17,6 @@ class GroupBy
     }
     public function toSql(string $dialect): string
     {
-        return $this->column;
+        return Quote::column($this->column, $dialect);
     }
 }

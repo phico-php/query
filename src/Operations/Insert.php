@@ -2,6 +2,9 @@
 
 namespace Phico\Query\Operations;
 
+use Phico\Query\Placeholders;
+use Phico\Query\Quote;
+
 class Insert
 {
     protected array $data;
@@ -16,8 +19,17 @@ class Insert
     {
         return array_values($this->data);
     }
-    public function toSql(string $table)
+    public function toSql(string $table, string $dialect)
     {
-        return sprintf("INSERT INTO {$table} (%s) VALUES (%s)", join(', ', array_keys($this->data)), join(', ', array_fill(0, count($this->data), '?')));
+        $columns = join(', ', array_map(function ($k) use ($dialect) {
+            return sprintf('%s', Quote::column($k, $dialect));
+        }, array_keys($this->data)));
+
+        return sprintf(
+            "INSERT INTO %s (%s) VALUES (%s)",
+            Quote::table($table, $dialect),
+            $columns,
+            Placeholders::repeat(count($this->data))
+        );
     }
 }

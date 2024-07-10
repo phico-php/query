@@ -2,6 +2,8 @@
 
 namespace Phico\Query\Operations;
 
+use Phico\Query\Quote;
+
 class Update
 {
     protected array $data;
@@ -14,10 +16,14 @@ class Update
     {
         return array_values($this->data);
     }
-    public function toSql(string $table)
+    public function toSql(string $table, string $dialect)
     {
-        return sprintf("UPDATE {$table} SET %s", join(', ', array_map(function ($k) {
-            return sprintf('%s = ?', $k);
-        }, array_keys($this->data))));
+        return sprintf(
+            "UPDATE %s SET %s",
+            Quote::table($table, $dialect),
+            join(', ', array_map(function ($k) use ($dialect) {
+                return sprintf('%s = ?', Quote::column($k, $dialect));
+            }, array_keys($this->data)))
+        );
     }
 }

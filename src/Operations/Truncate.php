@@ -2,10 +2,12 @@
 
 namespace Phico\Query\Operations;
 
+use Phico\Query\Quote;
+
 class Truncate
 {
-    public function toSql(string $table)
+    public function toSql(string $table, string $dialect)
     {
-        return "TRUNCATE {$table}";
+        return sprintf('TRUNCATE %s', Quote::table($table, $dialect));
     }
 }

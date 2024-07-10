@@ -3,6 +3,7 @@
 namespace Phico\Query\Conditions;
 
 use LogicException;
+use Phico\Query\Quote;
 
 
 class Join
@@ -33,12 +34,12 @@ class Join
             sprintf(
                 "%s JOIN %s ON %s.%s %s %s.%s",
                 $this->type,
-                $this->table,
-                $table,
-                $this->from,
+                Quote::table($this->table, $dialect),
+                Quote::table($table, $dialect),
+                Quote::column($this->from, $dialect),
                 $this->operator,
-                $this->table,
-                (empty($this->to)) ? "{$table}_id" : $this->to
+                Quote::column($this->table, $dialect),
+                (empty($this->to)) ? Quote::column("{$table}_id", $dialect) : Quote::column($this->to, $dialect)
             )
         );
     }

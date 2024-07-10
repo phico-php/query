@@ -2,10 +2,16 @@
 
 namespace Phico\Query\Operations;
 
+use Phico\Query\Quote;
+
 class Delete
 {
-    public function toSql(string $table)
+    public function getParams(): array
     {
-        return "DELETE FROM {$table}";
+        return [];
+    }
+    public function toSql(string $table, string $dialect)
+    {
+        return sprintf("DELETE FROM %s", Quote::table($table, $dialect));
     }
 }
