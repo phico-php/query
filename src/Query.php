@@ -9,7 +9,6 @@ use Phico\Query\Operations\{Select, Insert, Update, Delete, Truncate};
 
 class Query
 {
-    protected $dialect;
     protected $operation;
     protected $from;
     protected $limit;
@@ -21,9 +20,8 @@ class Query
     protected $params = [];
 
 
-    public function __construct($dialect)
+    public function __construct()
     {
-        $this->dialect = $dialect;
         // default operation is always select;
         $this->operation = new Select();
     }
@@ -143,27 +141,79 @@ class Query
         return $this;
     }
 
-    public function where($column, $operator, $value)
+    public function where($column, $operator = null, $value = null, $logic = 'AND')
     {
-        $this->where[] = new Where($column, $operator, $value);
-        $this->params[] = $value;
+        if (is_callable($column)) {
+            $query = new Query();
+            $column($query);
+            $this->where[] = $query;
+        } else {
+            $this->where[] = new Where($column, $operator, $value);
+        }
         return $this;
     }
-
-    public function orWhere($column, $operator, $value)
+    public function orWhere($column, $operator = null, $value = null)
     {
-        $this->where[] = new Where($column, $operator, $value, 'OR');
-        $this->params[] = $value;
-        return $this;
+        return $this->where($column, $operator, $value, 'OR');
+    }
+    public function whereNot($column, $operator = null, $value = null)
+    {
+        return $this->where($column, $operator, $value, 'NOT');
+    }
+    public function orWhereNot($column, $operator = null, $value = null)
+    {
+        return $this->where($column, $operator, $value, 'OR NOT');
+    }
+    public function whereBetween($column, $min, $max, $logic = 'AND')
+    {
+        $this->where[] = new WhereBetween($column, $min, $max);
+    }
+    public function orWhereBetween($column, $min, $max)
+    {
+        $this->where($column, $min, $max, 'OR');
+    }
+    public function whereNotBetween($column, $min, $max)
+    {
+        $this->where($column, $min, $max, 'NOT');
+    }
+    public function orWhereNotBetween($column, $min, $max)
+    {
+        $this->where($column, $min, $max, 'OR NOT');
     }
 
-    public function toSql()
+    public function whereIn($column, $values = null, $logic = 'AND', $negate = false)
     {
-        $sql = $this->operation->toSql($this->from);
+        if (is_callable($column)) {
+            $query = new Query();
+            $column($query);
+            $this->where[] = $query;
+        } else {
+            $this->where[] = new WhereIn($column, $operator, $value);
+        }
+        return $this;
+    }
+    public function orWhereIn($column, $operator = null, $value = null)
+    {
+        return $this->where($column, $operator, $value, 'OR');
+    }
+    public function whereNotIn($column, $operator = null, $value = null)
+    {
+        return $this->where($column, $operator, $value, 'NOT');
+    }
+    public function orWhereNotIn($column, $operator = null, $value = null)
+    {
+        return $this->where($column, $operator, $value, 'OR NOT');
+    }
+
+
+
+    public function toSql(string $dialect = 'sqlite')
+    {
+        $sql = $this->operation->toSql($this->from, $dialect);
 
         if (!empty($this->join)) {
             foreach ($this->join as $join) {
-                $sql .= ' ' . $join->toSql($this->from, $this->dialect);
+                $sql .= ' ' . $join->toSql($this->from, $dialect);
             }
         }
 
@@ -173,25 +223,26 @@ class Query
                 if ($index > 0) {
                     $sql .= ' ' . $where->getType();
                 }
-                $sql .= ' ' . $where->toSql($this->dialect);
+                $sql .= ' ' . $where->toSql($dialect);
+                $this->params = array_merge($this->params, array_values($where->getParams()));
             }
         }
 
         if (isset($this->limit)) {
-            $sql .= ' ' . $this->limit->toSql($this->dialect);
+            $sql .= ' ' . $this->limit->toSql($dialect);
         }
 
         if (!empty($this->groupby)) {
             $sql .= ' GROUP BY ';
-            $sql .= join(', ', array_map(function ($group) {
-                return $group->toSql($this->dialect);
+            $sql .= join(', ', array_map(function ($group) use ($dialect) {
+                return $group->toSql($dialect);
             }, $this->groupby));
         }
 
         if (!empty($this->orderby)) {
             $sql .= ' ORDER BY ';
-            $sql .= join(', ', array_map(function ($order) {
-                return $order->toSql($this->dialect);
+            $sql .= join(', ', array_map(function ($order) use ($dialect) {
+                return $order->toSql($dialect);
             }, $this->orderby));
         }
 
