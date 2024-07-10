@@ -2,16 +2,13 @@
 
 test('can create truncate query', function ($dialect, $expected) {
 
-    $query = query($dialect)->table('users')->truncate();
-    expect($query->toSql())->toBe($expected);
+    $query = query()->table('users')->truncate();
+    expect($query->toSql($dialect))->toBe($expected);
 
 })->with([
-            [
-                'sqlite',
-                "TRUNCATE users"
-            ],
-            // ['SELECT * FROM `users`', 'mysql'],
-            // ['SELECT * FROM "users"', 'pgsql']
+            ['mysql', 'TRUNCATE `users`'],
+            ['pgsql', 'TRUNCATE "users"'],
+            ['sqlite', 'TRUNCATE "users"'],
         ]);
 // test('can create delete query with where clause', function ($dialect, $data, $expected) {
 

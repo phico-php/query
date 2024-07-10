@@ -2,21 +2,21 @@
 
 test('can use sum()', function ($dialect, $expected) {
 
-    $query = query($dialect)->from('users')->sum('days');
-    expect($query->toSql())->toBe($expected);
+    $query = query()->from('users')->sum('days');
+    expect($query->toSql($dialect))->toBe($expected);
 
 })->with([
-            ['sqlite', 'SELECT SUM(days) AS sum FROM users'],
-            // ['mysql', 'SELECT * FROM `users`'],
-            // ['pgsql', 'SELECT * FROM "users"']
+            ['mysql', 'SELECT SUM(`days`) AS `sum` FROM `users`'],
+            ['pgsql', 'SELECT SUM("days") AS "sum" FROM "users"'],
+            ['sqlite', 'SELECT SUM("days") AS "sum" FROM "users"'],
         ]);
 test('can use sum() with as', function ($dialect, $expected) {
 
-    $query = query($dialect)->from('users')->sum('signins', 'total');
-    expect($query->toSql())->toBe($expected);
+    $query = query()->from('users')->sum('signins', 'total');
+    expect($query->toSql($dialect))->toBe($expected);
 
 })->with([
-            ['sqlite', 'SELECT SUM(signins) AS total FROM users'],
-            // ['mysql', 'SELECT * FROM `users`'],
-            // ['pgsql', 'SELECT * FROM "users"']
+            ['mysql', 'SELECT SUM(`signins`) AS `total` FROM `users`'],
+            ['pgsql', 'SELECT SUM("signins") AS "total" FROM "users"'],
+            ['sqlite', 'SELECT SUM("signins") AS "total" FROM "users"'],
         ]);
