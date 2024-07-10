@@ -2,9 +2,11 @@
 
 namespace Phico\Query\Operations;
 
+use Phico\Query\Quote;
+
 class Select
 {
-    protected string $columns;
+    protected array $columns;
     protected string $avg = '';
     protected string $count = '';
     protected string $distinct = '';
@@ -15,7 +17,7 @@ class Select
 
     public function __construct(array|string $columns = '')
     {
-        $this->columns = is_array($columns) ? implode(', ', $columns) : $columns;
+        $this->columns = is_string($columns) ? array_filter(explode(', ', $columns)) : $columns;
     }
     public function distinct(): self
     {
@@ -47,21 +49,43 @@ class Select
         $this->max = "MAX({$column}) AS {$as}";
         return $this;
     }
-    public function toSql(string $table)
+    public function toSql(string $table, string $dialect)
     {
         if ($this->distinct) {
-            return "SELECT {$this->distinct} {$this->columns} FROM {$table}";
+            return sprintf(
+                "SELECT DISTINCT %s FROM %s",
+                Quote::columns($this->columns, $dialect),
+                Quote::table($table, $dialect)
+            );
         }
         if ($this->avg or $this->count or $this->max or $this->min or $this->sum) {
             if (empty($this->columns)) {
-                return "SELECT {$this->avg}{$this->count}{$this->max}{$this->min}{$this->sum} FROM {$table}";
+                return sprintf(
+                    "SELECT %s%s%s%s%s FROM %s",
+                    Quote::aggregate($this->avg, $dialect),
+                    Quote::aggregate($this->count, $dialect),
+                    Quote::aggregate($this->max, $dialect),
+                    Quote::aggregate($this->min, $dialect),
+                    Quote::aggregate($this->sum, $dialect),
+                    Quote::table($table, $dialect)
+                );
             }
-            return "SELECT {$this->avg}{$this->count}{$this->max}{$this->min}{$this->sum}, {$this->columns} FROM {$table}";
+            return sprintf(
+                "SELECT %s%s%s%s%s, %s FROM %s",
+                Quote::aggregate($this->avg, $dialect),
+                Quote::aggregate($this->count, $dialect),
+                Quote::aggregate($this->max, $dialect),
+                Quote::aggregate($this->min, $dialect),
+                Quote::aggregate($this->sum, $dialect),
+                Quote::columns($this->columns, $dialect),
+                Quote::table($table, $dialect)
+            );
         }
 
-        if (empty($this->columns)) {
-            $this->columns = '*';
-        }
-        return "SELECT {$this->columns} FROM {$table}";
+        return sprintf(
+            "SELECT %s FROM %s",
+            Quote::columns($this->columns, $dialect),
+            Quote::table($table, $dialect)
+        );
     }
 }
