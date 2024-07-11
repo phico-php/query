@@ -245,11 +245,18 @@ class Query
                     $sql .= ' ' . $where->getType();
                 }
                 if ($where->isNested()) {
-                    $sql .= ' (' . substr($where->toSql($dialect), 7) . ')';
+                    // trim if sql begins with where
+                    $str = $where->toSql($dialect);
+                    $this->params = array_merge($this->params, $where->getParams());
+                    if (str_starts_with($str, ' WHERE')) {
+                        $str = substr($where->toSql($dialect), 7);
+                    }
+                    $sql .= ' (' . $str . ')';
                 } else {
                     $sql .= ' ' . $where->toSql($dialect);
+                    $this->params = array_merge($this->params, $where->getParams());
                 }
-                $this->params = array_merge($this->params, $where->getParams());
+
             }
         }
 
