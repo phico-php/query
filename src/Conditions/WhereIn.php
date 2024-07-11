@@ -30,6 +30,10 @@ class WhereIn extends Where
 
         return $this->values;
     }
+    public function isNested(): bool
+    {
+        return false;
+    }
     public function toSql(string $dialect): string
     {
         if (isset($this->query)) {

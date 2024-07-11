@@ -134,7 +134,9 @@ test('can use nested whereIn clause with query', function ($dialect, $data, $exp
                 ->select('id')
                 ->from('categories')
                 ->where('tags', 'LIKE', 'foo');
-        });
+        })
+        ->orderBy('published_at', 'desc')
+        ->limit(10);
     expect($query->toSql($dialect))->toBe($expected);
     expect($query->getParams())->toBe([1, 'foo']);
 
@@ -145,7 +147,7 @@ test('can use nested whereIn clause with query', function ($dialect, $data, $exp
                     'name' => 'Bob',
                     'email' => 'bob@example.com'
                 ],
-                'SELECT * FROM `posts` WHERE `rating` > ? AND (`category_id` IN (SELECT `id` FROM `categories` WHERE `tags` LIKE ?))'
+                'SELECT * FROM `posts` WHERE `rating` > ? AND `category_id` IN (SELECT `id` FROM `categories` WHERE `tags` LIKE ?) ORDER BY `published_at` DESC LIMIT 10'
             ],
             [
                 'pgsql',
@@ -153,7 +155,7 @@ test('can use nested whereIn clause with query', function ($dialect, $data, $exp
                     'name' => 'Bob',
                     'email' => 'bob@example.com'
                 ],
-                'SELECT * FROM "posts" WHERE "rating" > ? AND ("category_id" IN (SELECT "id" FROM "categories" WHERE "tags" LIKE ?))'
+                'SELECT * FROM "posts" WHERE "rating" > ? AND "category_id" IN (SELECT "id" FROM "categories" WHERE "tags" LIKE ?) ORDER BY "published_at" DESC LIMIT 10'
             ],
             [
                 'sqlite',
@@ -161,6 +163,6 @@ test('can use nested whereIn clause with query', function ($dialect, $data, $exp
                     'name' => 'Bob',
                     'email' => 'bob@example.com'
                 ],
-                'SELECT * FROM "posts" WHERE "rating" > ? AND ("category_id" IN (SELECT "id" FROM "categories" WHERE "tags" LIKE ?))'
+                'SELECT * FROM "posts" WHERE "rating" > ? AND "category_id" IN (SELECT "id" FROM "categories" WHERE "tags" LIKE ?) ORDER BY "published_at" DESC LIMIT 10'
             ],
         ]);
