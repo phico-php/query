@@ -3,7 +3,7 @@
 namespace Phico\Query;
 
 use LogicException;
-use Phico\Query\Conditions\{Join, Limit, GroupBy, OrderBy, Where};
+use Phico\Query\Conditions\{Join, Limit, GroupBy, OrderBy, Where, WhereIn};
 use Phico\Query\Operations\{Select, Insert, Update, Delete, Truncate};
 
 
@@ -27,21 +27,22 @@ class Query
     }
     public function getParams()
     {
-        return $this->operation->getParams();
+        return $this->params;
     }
     public function select($columns = '*'): self
     {
+        // @TODO if this is set then add columns instead of replacing select
         $this->operation = new Select($columns);
         return $this;
     }
-    public function insert($table): self
+    public function insert(array|object $data): self
     {
-        $this->operation = new Insert($table);
+        $this->operation = new Insert($data);
         return $this;
     }
-    public function update($table): self
+    public function update(array|object $data): self
     {
-        $this->operation = new Update($table);
+        $this->operation = new Update($data);
         return $this;
     }
     public function delete(): self
@@ -141,30 +142,24 @@ class Query
         return $this;
     }
 
-    public function where($column, $operator = null, $value = null, $logic = 'AND')
+    public function where(callable|string $column, string $operator = '=', mixed $value = null, string $type = 'AND', bool $negate = false)
     {
-        if (is_callable($column)) {
-            $query = new Query();
-            $column($query);
-            $this->where[] = $query;
-        } else {
-            $this->where[] = new Where($column, $operator, $value);
-        }
+        $this->where[] = new Where($column, $operator, $value, $type, $negate);
         return $this;
     }
     public function orWhere($column, $operator = null, $value = null)
     {
-        return $this->where($column, $operator, $value, 'OR');
+        return $this->where($column, $operator, $value, 'OR', false);
     }
     public function whereNot($column, $operator = null, $value = null)
     {
-        return $this->where($column, $operator, $value, 'NOT');
+        return $this->where($column, $operator, $value, 'AND', true);
     }
     public function orWhereNot($column, $operator = null, $value = null)
     {
-        return $this->where($column, $operator, $value, 'OR NOT');
+        return $this->where($column, $operator, $value, 'OR', true);
     }
-    public function whereBetween($column, $min, $max, $logic = 'AND')
+    public function whereBetween($column, $min, $max, $type = 'AND', bool $negate = false)
     {
         $this->where[] = new WhereBetween($column, $min, $max);
     }
@@ -181,15 +176,9 @@ class Query
         $this->where($column, $min, $max, 'OR NOT');
     }
 
-    public function whereIn($column, $values = null, $logic = 'AND', $negate = false)
+    public function whereIn($column, $values = null, $type = 'AND', $negate = false)
     {
-        if (is_callable($column)) {
-            $query = new Query();
-            $column($query);
-            $this->where[] = $query;
-        } else {
-            $this->where[] = new WhereIn($column, $operator, $value);
-        }
+        $this->where[] = new WhereIn($column, $values, $type, $negate);
         return $this;
     }
     public function orWhereIn($column, $operator = null, $value = null)
@@ -205,11 +194,15 @@ class Query
         return $this->where($column, $operator, $value, 'OR NOT');
     }
 
-
-
     public function toSql(string $dialect = 'sqlite')
     {
-        $sql = $this->operation->toSql($this->from, $dialect);
+        $sql = '';
+
+        // from may not be set if this is a nested query, we might only want the where clauses
+        if (isset($this->from)) {
+            $sql.= $this->operation->toSql($this->from, $dialect);
+            $this->params = array_merge($this->params, $this->operation->getParams());
+        }
 
         if (!empty($this->join)) {
             foreach ($this->join as $join) {
@@ -223,8 +216,12 @@ class Query
                 if ($index > 0) {
                     $sql .= ' ' . $where->getType();
                 }
-                $sql .= ' ' . $where->toSql($dialect);
-                $this->params = array_merge($this->params, array_values($where->getParams()));
+                if ($where->isNested()) {
+                    $sql.= ' ('.substr($where->toSql($dialect), 7).')';
+                } else {
+                    $sql .= ' ' . $where->toSql($dialect);
+                }
+                $this->params = array_merge($this->params, $where->getParams());
             }
         }
 

@@ -5,19 +5,21 @@ namespace Phico\Query\Conditions;
 use Phico\Query\Placeholders;
 use Phico\Query\Quote;
 
-class WhereIn extends Where
+class WhereBetween extends Where
 {
-    protected array $values;
+    protected int|string $min;
+    protected int|string $max;
 
 
-    public function __construct($column, $values = [], $type = 'AND', $negate = false)
+    public function __construct(callable|string $column, mixed $min, mixed $max, string $type = 'AND', bool $negate = false)
     {
         if (is_callable($column)) {
             $this->query = $column;
         } else {
             $this->column = $column;
         }
-        $this->values = $values;
+        $this->min = $min;
+        $this->max = $max;
         $this->type = $type;
         $this->negate = $negate;
     }
@@ -29,10 +31,9 @@ class WhereIn extends Where
         }
 
         return sprintf(
-            "%s %sIN (%s)",
+            "%s %sBETWEEN ? AND ?",
             ($this->negate) ? 'NOT ' : '',
             Quote::column($dialect, $this->column),
-            Placeholders::repeat(count($this->values))
         );
     }
 }

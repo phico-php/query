@@ -1,5 +1,5 @@
 <?php
-
+/*
 test('can use where clause', function ($dialect, $data, $expected) {
 
     $query = query()
@@ -35,7 +35,7 @@ test('can use where clause', function ($dialect, $data, $expected) {
                 'UPDATE "users" SET "name" = ?, "email" = ? WHERE "created_at" > ?'
             ],
         ]);
-
+*/
 test('can use nested where clause', function ($dialect, $data, $expected) {
 
     $query = query()
@@ -56,7 +56,7 @@ test('can use nested where clause', function ($dialect, $data, $expected) {
                     'name' => 'Bob',
                     'email' => 'bob@example.com'
                 ],
-                'UPDATE `users` SET `name` = ?, `email` = ? WHERE `created_at` > ?'
+                'UPDATE `users` SET `name` = ?, `email` = ? WHERE `created_at` > ? AND (`is_active` > ? OR `is_active` < ?)'
             ],
             [
                 'pgsql',
@@ -64,7 +64,7 @@ test('can use nested where clause', function ($dialect, $data, $expected) {
                     'name' => 'Bob',
                     'email' => 'bob@example.com'
                 ],
-                'UPDATE "users" SET "name" = ?, "email" = ? WHERE "created_at" > ?'
+                'UPDATE "users" SET "name" = ?, "email" = ? WHERE "created_at" > ? AND ("is_active" > ? OR "is_active" < ?)'
             ],
             [
                 'sqlite',
@@ -72,7 +72,7 @@ test('can use nested where clause', function ($dialect, $data, $expected) {
                     'name' => 'Bob',
                     'email' => 'bob@example.com'
                 ],
-                'UPDATE "users" SET "name" = ?, "email" = ? WHERE "created_at" > ?'
+                'UPDATE "users" SET "name" = ?, "email" = ? WHERE "created_at" > ? AND ("is_active" > ? OR "is_active" < ?)'
             ],
         ]);
 

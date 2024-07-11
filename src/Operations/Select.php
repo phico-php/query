@@ -19,6 +19,10 @@ class Select
     {
         $this->columns = is_string($columns) ? array_filter(explode(', ', $columns)) : $columns;
     }
+    public function getParams(): array
+    {
+        return [];
+    }
     public function distinct(): self
     {
         $this->distinct = 'DISTINCT';
