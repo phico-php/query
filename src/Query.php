@@ -3,7 +3,7 @@
 namespace Phico\Query;
 
 use LogicException;
-use Phico\Query\Conditions\{Having, Join, Limit, GroupBy, OrderBy, Where, WhereBetween, WhereIn};
+use Phico\Query\Conditions\{Having, Join, Limit, GroupBy, OrderBy, Where, WhereBetween, WhereIn, WhereNull};
 use Phico\Query\Operations\{Select, Insert, Update, Delete, Truncate};
 
 
@@ -190,6 +190,7 @@ class Query
     {
         return $this->where($column, $operator, $value, 'OR', true);
     }
+
     public function whereBetween($column, $min, $max, $type = 'AND', bool $negate = false)
     {
         $this->where[] = new WhereBetween($column, $min, $max, $type, $negate);
@@ -224,6 +225,24 @@ class Query
     public function orWhereNotIn($column, $values = null)
     {
         return $this->whereIn($column, $values, 'OR', true);
+    }
+
+    public function whereNull(callable|string $column, mixed $value = null, string $type = 'AND', bool $negate = false)
+    {
+        $this->where[] = new WhereNull($column, $value, $type, $negate);
+        return $this;
+    }
+    public function orWhereNull(callable|string $column, mixed $value = null)
+    {
+        return $this->whereNull($column, $value, 'OR', false);
+    }
+    public function whereNotNull(callable|string $column, mixed $value = null)
+    {
+        return $this->whereNull($column, $value, 'AND', true);
+    }
+    public function orWhereNotNull(callable|string $column, mixed $value = null)
+    {
+        return $this->whereNull($column, $value, 'OR', true);
     }
 
     public function having(string $column, string $operator = '=', mixed $value = null, string $type = 'AND')
