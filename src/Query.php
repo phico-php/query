@@ -260,10 +260,6 @@ class Query
             }
         }
 
-        if (isset($this->limit)) {
-            $sql .= ' ' . $this->limit->toSql($dialect);
-        }
-
         if (!empty($this->groupby)) {
             $sql .= ' GROUP BY ';
             $sql .= join(', ', array_map(function ($group) use ($dialect) {
@@ -276,6 +272,10 @@ class Query
             $sql .= join(', ', array_map(function ($order) use ($dialect) {
                 return $order->toSql($dialect);
             }, $this->orderby));
+        }
+
+        if (isset($this->limit)) {
+            $sql .= ' ' . $this->limit->toSql($dialect);
         }
 
         return $sql;
