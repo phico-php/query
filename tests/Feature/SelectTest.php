@@ -11,6 +11,17 @@ test('can create select query', function ($dialect, $expected) {
             ['sqlite', 'SELECT * FROM "users"'],
         ]);
 
+test('can create select query passing table name in constructor', function ($dialect, $expected) {
+
+    $query = query('users');
+    expect($query->toSql($dialect))->toBe($expected);
+
+})->with([
+            ['mysql', 'SELECT * FROM `users`'],
+            ['pgsql', 'SELECT * FROM "users"'],
+            ['sqlite', 'SELECT * FROM "users"'],
+        ]);
+
 test('can create select query with column names from string', function ($dialect, $expected) {
 
     $query = query()->from('users')->select('name, email');

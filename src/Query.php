@@ -20,10 +20,14 @@ class Query
     protected $params = [];
 
 
-    public function __construct()
+    public function __construct(null|string $table = null)
     {
         // default operation is always select;
         $this->operation = new Select();
+        // set table name if specified
+        if (!is_null($table)) {
+            $this->from = $table;
+        }
     }
     public function getParams()
     {
