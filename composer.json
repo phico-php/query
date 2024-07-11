@@ -1,6 +1,11 @@
 {
   "name": "phico/query",
   "description": "Lightweight SQL query builder, designed for Phico",
+  "keywords": [
+    "database",
+    "sql",
+    "query builder"
+  ],
   "type": "library",
   "license": "BSD-3-Clause",
   "minimum-stability": "dev",
