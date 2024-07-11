@@ -226,6 +226,16 @@ class Query
         return $this->whereIn($column, $values, 'OR', true);
     }
 
+    public function having(string $column, string $operator = '=', mixed $value = null, string $type = 'AND')
+    {
+        $this->having[] = new Having($column, $operator, $value, $type);
+        return $this;
+    }
+    public function orHaving(string $column, string $operator = '=', mixed $value = null)
+    {
+        return $this->having($column, $operator, $value, 'OR');
+    }
+
     public function toSql(string $dialect = 'sqlite')
     {
         $sql = '';
@@ -260,7 +270,6 @@ class Query
                     $sql .= ' ' . $where->toSql($dialect);
                     $this->params = array_merge($this->params, $where->getParams());
                 }
-
             }
         }
 
@@ -269,6 +278,17 @@ class Query
             $sql .= join(', ', array_map(function ($group) use ($dialect) {
                 return $group->toSql($dialect);
             }, $this->groupby));
+        }
+
+        if (!empty($this->having)) {
+            $sql .= ' HAVING';
+            foreach ($this->having as $index => $having) {
+                if ($index > 0) {
+                    $sql .= ' ' . $having->getType();
+                }
+                $sql .= ' ' . $having->toSql($dialect);
+                $this->params = array_merge($this->params, $having->getParams());
+            }
         }
 
         if (!empty($this->orderby)) {
