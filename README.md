@@ -16,6 +16,8 @@ composer require pico-php/query
 
 This is an early release and the documentation is not up to date, however it broadly follows Laravel Eloquent or the earlier project indgy/phluent, please refer to the [Phluent documentation](https://indgy.github.io/phluent/) but be aware that there are subtle differences, notably the order of arguments is fixed, now that we can use named arguments it's less of an issue but means that the method signatures are not compatible with Eloquent/Phluent.
 
+NB: You must call toSql() before calling getParams() as the params are collected whilst creating the sql.
+
 ```php
 
 $query = query('sqlite')->from('users')->toSql();
