@@ -3,7 +3,7 @@
 namespace Phico\Query;
 
 use LogicException;
-use Phico\Query\Conditions\{Join, Limit, GroupBy, OrderBy, Where, WhereBetween, WhereIn};
+use Phico\Query\Conditions\{Having, Join, Limit, GroupBy, OrderBy, Where, WhereBetween, WhereIn};
 use Phico\Query\Operations\{Select, Insert, Update, Delete, Truncate};
 
 
