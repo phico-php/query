@@ -21,8 +21,8 @@ class Quote
         }
 
         return match ($dialect) {
-            'mysql', 'mariadb' => "`$column`",
-            'pgsql', 'sqlite', 'sqlite2' => '"' . $column . '"',
+            'mysql', 'mariadb' => str_replace('.', '`.`', "`$column`"),
+            'pgsql', 'sqlite', 'sqlite2' => str_replace('.', '"."', '"' . $column . '"'),
         };
     }
     public static function columns(array $columns, string $dialect): string
