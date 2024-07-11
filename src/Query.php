@@ -3,7 +3,7 @@
 namespace Phico\Query;
 
 use LogicException;
-use Phico\Query\Conditions\{Join, Limit, GroupBy, OrderBy, Where, WhereIn};
+use Phico\Query\Conditions\{Join, Limit, GroupBy, OrderBy, Where, WhereBetween, WhereIn};
 use Phico\Query\Operations\{Select, Insert, Update, Delete, Truncate};
 
 
@@ -67,11 +67,38 @@ class Query
         return $this;
     }
 
-    public function join(string $table, string $from = 'id', string $to = '', string $operator = '=', string $type = 'inner'): self
+    public function join(string $table, string $from = 'id', string $to = '', string $operator = '=', string $type = ''): self
     {
         $this->join[] = new Join($table, $from, $to, $operator, strtoupper($type));
-
         return $this;
+    }
+    public function innerJoin(string $table, string $from = 'id', string $to = '', string $operator = '='): self
+    {
+        return $this->join($table, $from, $to, $operator, 'INNER');
+    }
+    public function outerJoin(string $table, string $from = 'id', string $to = '', string $operator = '='): self
+    {
+        return $this->join($table, $from, $to, $operator, 'OUTER');
+    }
+    public function leftJoin(string $table, string $from = 'id', string $to = '', string $operator = '='): self
+    {
+        return $this->join($table, $from, $to, $operator, 'LEFT');
+    }
+    public function rightJoin(string $table, string $from = 'id', string $to = '', string $operator = '='): self
+    {
+        return $this->join($table, $from, $to, $operator, 'RIGHT');
+    }
+    public function fullJoin(string $table, string $from = 'id', string $to = '', string $operator = '='): self
+    {
+        return $this->join($table, $from, $to, $operator, 'FULL');
+    }
+    public function selfJoin(string $table, string $from = 'id', string $to = '', string $operator = '='): self
+    {
+        return $this->join($table, $from, $to, $operator, 'SELF');
+    }
+    public function crossJoin(string $table, string $from = 'id', string $to = '', string $operator = '='): self
+    {
+        return $this->join($table, $from, $to, $operator, 'CROSS');
     }
 
     public function distinct(): self
@@ -147,33 +174,34 @@ class Query
         $this->where[] = new Where($column, $operator, $value, $type, $negate);
         return $this;
     }
-    public function orWhere($column, $operator = null, $value = null)
+    public function orWhere(callable|string $column, string $operator = '=', mixed $value = null)
     {
         return $this->where($column, $operator, $value, 'OR', false);
     }
-    public function whereNot($column, $operator = null, $value = null)
+    public function whereNot(callable|string $column, string $operator = '=', mixed $value = null)
     {
         return $this->where($column, $operator, $value, 'AND', true);
     }
-    public function orWhereNot($column, $operator = null, $value = null)
+    public function orWhereNot(callable|string $column, string $operator = '=', mixed $value = null)
     {
         return $this->where($column, $operator, $value, 'OR', true);
     }
     public function whereBetween($column, $min, $max, $type = 'AND', bool $negate = false)
     {
-        $this->where[] = new WhereBetween($column, $min, $max);
+        $this->where[] = new WhereBetween($column, $min, $max, $type, $negate);
+        return $this;
     }
     public function orWhereBetween($column, $min, $max)
     {
-        $this->where($column, $min, $max, 'OR');
+        return $this->whereBetween($column, $min, $max, 'OR', false);
     }
     public function whereNotBetween($column, $min, $max)
     {
-        $this->where($column, $min, $max, 'NOT');
+        return $this->whereBetween($column, $min, $max, 'AND', true);
     }
     public function orWhereNotBetween($column, $min, $max)
     {
-        $this->where($column, $min, $max, 'OR NOT');
+        return $this->whereBetween($column, $min, $max, 'OR', true);
     }
 
     public function whereIn($column, $values = null, $type = 'AND', $negate = false)
@@ -181,17 +209,17 @@ class Query
         $this->where[] = new WhereIn($column, $values, $type, $negate);
         return $this;
     }
-    public function orWhereIn($column, $operator = null, $value = null)
+    public function orWhereIn($column, $values = null)
     {
-        return $this->where($column, $operator, $value, 'OR');
+        return $this->whereIn($column, $values, 'OR');
     }
-    public function whereNotIn($column, $operator = null, $value = null)
+    public function whereNotIn($column, $values = null)
     {
-        return $this->where($column, $operator, $value, 'NOT');
+        return $this->whereIn($column, $values, 'AND', true);
     }
-    public function orWhereNotIn($column, $operator = null, $value = null)
+    public function orWhereNotIn($column, $values = null)
     {
-        return $this->where($column, $operator, $value, 'OR NOT');
+        return $this->whereIn($column, $values, 'OR', true);
     }
 
     public function toSql(string $dialect = 'sqlite')
@@ -200,7 +228,7 @@ class Query
 
         // from may not be set if this is a nested query, we might only want the where clauses
         if (isset($this->from)) {
-            $sql.= $this->operation->toSql($this->from, $dialect);
+            $sql .= $this->operation->toSql($this->from, $dialect);
             $this->params = array_merge($this->params, $this->operation->getParams());
         }
 
@@ -217,7 +245,7 @@ class Query
                     $sql .= ' ' . $where->getType();
                 }
                 if ($where->isNested()) {
-                    $sql.= ' ('.substr($where->toSql($dialect), 7).')';
+                    $sql .= ' (' . substr($where->toSql($dialect), 7) . ')';
                 } else {
                     $sql .= ' ' . $where->toSql($dialect);
                 }

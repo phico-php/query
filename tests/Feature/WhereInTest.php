@@ -1,13 +1,14 @@
 <?php
 
-test('can use where clause', function ($dialect, $data, $expected) {
+test('can use where in clause', function ($dialect, $data, $expected) {
 
     $query = query()
         ->table('users')
         ->where('created_at', '>', 1)
+        ->whereIn('role', ['viewer', 'guest'])
         ->update($data);
     expect($query->toSql($dialect))->toBe($expected);
-    expect($query->getParams())->toBe(['Bob', 'bob@example.com', 1]);
+    expect($query->getParams())->toBe(['Bob', 'bob@example.com', 1, 'viewer', 'guest']);
 
 })->with([
             [
@@ -16,7 +17,7 @@ test('can use where clause', function ($dialect, $data, $expected) {
                     'name' => 'Bob',
                     'email' => 'bob@example.com'
                 ],
-                'UPDATE `users` SET `name` = ?, `email` = ? WHERE `created_at` > ?'
+                'UPDATE `users` SET `name` = ?, `email` = ? WHERE `created_at` > ? AND `role` IN (?, ?)'
             ],
             [
                 'pgsql',
@@ -24,7 +25,7 @@ test('can use where clause', function ($dialect, $data, $expected) {
                     'name' => 'Bob',
                     'email' => 'bob@example.com'
                 ],
-                'UPDATE "users" SET "name" = ?, "email" = ? WHERE "created_at" > ?'
+                'UPDATE "users" SET "name" = ?, "email" = ? WHERE "created_at" > ? AND "role" IN (?, ?)'
             ],
             [
                 'sqlite',
@@ -32,18 +33,18 @@ test('can use where clause', function ($dialect, $data, $expected) {
                     'name' => 'Bob',
                     'email' => 'bob@example.com'
                 ],
-                'UPDATE "users" SET "name" = ?, "email" = ? WHERE "created_at" > ?'
+                'UPDATE "users" SET "name" = ?, "email" = ? WHERE "created_at" > ? AND "role" IN (?, ?)'
             ],
         ]);
-test('can use or where clause', function ($dialect, $data, $expected) {
+test('can use or where in clause', function ($dialect, $data, $expected) {
 
     $query = query()
         ->table('users')
         ->where('created_at', '>', 1)
-        ->orWhere('created_at', '<', 2)
+        ->orWhereIn('role', ['viewer', 'guest'])
         ->update($data);
     expect($query->toSql($dialect))->toBe($expected);
-    expect($query->getParams())->toBe(['Bob', 'bob@example.com', 1, 2]);
+    expect($query->getParams())->toBe(['Bob', 'bob@example.com', 1, 'viewer', 'guest']);
 
 })->with([
             [
@@ -52,7 +53,7 @@ test('can use or where clause', function ($dialect, $data, $expected) {
                     'name' => 'Bob',
                     'email' => 'bob@example.com'
                 ],
-                'UPDATE `users` SET `name` = ?, `email` = ? WHERE `created_at` > ? OR `created_at` < ?'
+                'UPDATE `users` SET `name` = ?, `email` = ? WHERE `created_at` > ? OR `role` IN (?, ?)'
             ],
             [
                 'pgsql',
@@ -60,7 +61,7 @@ test('can use or where clause', function ($dialect, $data, $expected) {
                     'name' => 'Bob',
                     'email' => 'bob@example.com'
                 ],
-                'UPDATE "users" SET "name" = ?, "email" = ? WHERE "created_at" > ? OR "created_at" < ?'
+                'UPDATE "users" SET "name" = ?, "email" = ? WHERE "created_at" > ? OR "role" IN (?, ?)'
             ],
             [
                 'sqlite',
@@ -68,18 +69,18 @@ test('can use or where clause', function ($dialect, $data, $expected) {
                     'name' => 'Bob',
                     'email' => 'bob@example.com'
                 ],
-                'UPDATE "users" SET "name" = ?, "email" = ? WHERE "created_at" > ? OR "created_at" < ?'
+                'UPDATE "users" SET "name" = ?, "email" = ? WHERE "created_at" > ? OR "role" IN (?, ?)'
             ],
         ]);
-test('can use where not clause', function ($dialect, $data, $expected) {
+test('can use where not in clause', function ($dialect, $data, $expected) {
 
     $query = query()
         ->table('users')
         ->where('created_at', '>', 1)
-        ->whereNot('created_at', '<', 2)
+        ->whereNotIn('role', ['viewer', 'guest'])
         ->update($data);
     expect($query->toSql($dialect))->toBe($expected);
-    expect($query->getParams())->toBe(['Bob', 'bob@example.com', 1, 2]);
+    expect($query->getParams())->toBe(['Bob', 'bob@example.com', 1, 'viewer', 'guest']);
 
 })->with([
             [
@@ -88,7 +89,7 @@ test('can use where not clause', function ($dialect, $data, $expected) {
                     'name' => 'Bob',
                     'email' => 'bob@example.com'
                 ],
-                'UPDATE `users` SET `name` = ?, `email` = ? WHERE `created_at` > ? AND NOT `created_at` < ?'
+                'UPDATE `users` SET `name` = ?, `email` = ? WHERE `created_at` > ? AND NOT `role` IN (?, ?)'
             ],
             [
                 'pgsql',
@@ -96,7 +97,7 @@ test('can use where not clause', function ($dialect, $data, $expected) {
                     'name' => 'Bob',
                     'email' => 'bob@example.com'
                 ],
-                'UPDATE "users" SET "name" = ?, "email" = ? WHERE "created_at" > ? AND NOT "created_at" < ?'
+                'UPDATE "users" SET "name" = ?, "email" = ? WHERE "created_at" > ? AND NOT "role" IN (?, ?)'
             ],
             [
                 'sqlite',
@@ -104,18 +105,18 @@ test('can use where not clause', function ($dialect, $data, $expected) {
                     'name' => 'Bob',
                     'email' => 'bob@example.com'
                 ],
-                'UPDATE "users" SET "name" = ?, "email" = ? WHERE "created_at" > ? AND NOT "created_at" < ?'
+                'UPDATE "users" SET "name" = ?, "email" = ? WHERE "created_at" > ? AND NOT "role" IN (?, ?)'
             ],
         ]);
-test('can use or where not clause', function ($dialect, $data, $expected) {
+test('can use or where not in clause', function ($dialect, $data, $expected) {
 
     $query = query()
         ->table('users')
         ->where('created_at', '>', 1)
-        ->orWhereNot('created_at', '<', 2)
+        ->orWhereNotIn('role', ['viewer', 'guest'])
         ->update($data);
     expect($query->toSql($dialect))->toBe($expected);
-    expect($query->getParams())->toBe(['Bob', 'bob@example.com', 1, 2]);
+    expect($query->getParams())->toBe(['Bob', 'bob@example.com', 1, 'viewer', 'guest']);
 
 })->with([
             [
@@ -124,7 +125,7 @@ test('can use or where not clause', function ($dialect, $data, $expected) {
                     'name' => 'Bob',
                     'email' => 'bob@example.com'
                 ],
-                'UPDATE `users` SET `name` = ?, `email` = ? WHERE `created_at` > ? OR NOT `created_at` < ?'
+                'UPDATE `users` SET `name` = ?, `email` = ? WHERE `created_at` > ? OR NOT `role` IN (?, ?)'
             ],
             [
                 'pgsql',
@@ -132,7 +133,7 @@ test('can use or where not clause', function ($dialect, $data, $expected) {
                     'name' => 'Bob',
                     'email' => 'bob@example.com'
                 ],
-                'UPDATE "users" SET "name" = ?, "email" = ? WHERE "created_at" > ? OR NOT "created_at" < ?'
+                'UPDATE "users" SET "name" = ?, "email" = ? WHERE "created_at" > ? OR NOT "role" IN (?, ?)'
             ],
             [
                 'sqlite',
@@ -140,6 +141,6 @@ test('can use or where not clause', function ($dialect, $data, $expected) {
                     'name' => 'Bob',
                     'email' => 'bob@example.com'
                 ],
-                'UPDATE "users" SET "name" = ?, "email" = ? WHERE "created_at" > ? OR NOT "created_at" < ?'
+                'UPDATE "users" SET "name" = ?, "email" = ? WHERE "created_at" > ? OR NOT "role" IN (?, ?)'
             ],
         ]);

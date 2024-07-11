@@ -2,8 +2,8 @@
 
 namespace Phico\Query\Conditions;
 
-use Phico\Query\Placeholders;
 use Phico\Query\Quote;
+
 
 class WhereBetween extends Where
 {
@@ -14,7 +14,8 @@ class WhereBetween extends Where
     public function __construct(callable|string $column, mixed $min, mixed $max, string $type = 'AND', bool $negate = false)
     {
         if (is_callable($column)) {
-            $this->query = $column;
+            $this->query = query();
+            $column($this->query);
         } else {
             $this->column = $column;
         }
@@ -23,7 +24,14 @@ class WhereBetween extends Where
         $this->type = $type;
         $this->negate = $negate;
     }
+    public function getParams(): array
+    {
+        if (isset($this->query)) {
+            return $this->query->getParams();
+        }
 
+        return [$this->min, $this->max];
+    }
     public function toSql(string $dialect): string
     {
         if (isset($this->query)) {
@@ -31,9 +39,9 @@ class WhereBetween extends Where
         }
 
         return sprintf(
-            "%s %sBETWEEN ? AND ?",
+            "%s%s BETWEEN ? AND ?",
             ($this->negate) ? 'NOT ' : '',
-            Quote::column($dialect, $this->column),
+            Quote::column($this->column, $dialect),
         );
     }
 }

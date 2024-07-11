@@ -56,7 +56,8 @@ class Where
         }
 
         return sprintf(
-            "%s %s ?",
+            "%s%s %s ?",
+            ($this->negate) ? 'NOT ' : '',
             Quote::column($this->column, $dialect),
             $this->operator,
         );
