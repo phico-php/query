@@ -60,7 +60,7 @@ class Query
         return $this;
     }
 
-    public function from($from): self
+    public function from(string $from): self
     {
         $this->from = $from;
         return $this;
