@@ -10,7 +10,7 @@ class WhereNull extends Where
     public function __construct(string $column, callable $callable = null, $type = 'AND', $negate = false)
     {
         $this->column = $column;
-        if (is_callable($callable)) {
+        if ($callable instanceof \Closure) {
             $this->query = query();
             $callable($this->query);
         }

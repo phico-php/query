@@ -13,7 +13,7 @@ class WhereBetween extends Where
 
     public function __construct(callable|string $column, mixed $min, mixed $max, string $type = 'AND', bool $negate = false)
     {
-        if (is_callable($column)) {
+        if ($column instanceof \Closure) {
             $this->query = query();
             $column($this->query);
         } else {

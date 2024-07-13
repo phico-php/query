@@ -18,7 +18,7 @@ class Where
 
     public function __construct(callable|string $column, string $operator = '=', mixed $value = null, string $type = 'AND', bool $negate = false)
     {
-        if (is_callable($column)) {
+        if ($column instanceof \Closure) {
             $this->query = query();
             $column($this->query);
         } else {

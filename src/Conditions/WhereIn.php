@@ -13,7 +13,7 @@ class WhereIn extends Where
     public function __construct(string $column, callable|array $values = [], $type = 'AND', $negate = false)
     {
         $this->column = $column;
-        if (is_callable($values)) {
+        if ($values instanceof \Closure) {
             $this->query = query();
             $values($this->query);
         } else {
