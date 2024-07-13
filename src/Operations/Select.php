@@ -17,6 +17,7 @@ class Select
 
     public function __construct(array|string $columns = '')
     {
+        //@TODO handle nested selects
 
         if (is_string($columns)) {
             $columns = explode(', ', $columns);

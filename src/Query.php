@@ -62,6 +62,7 @@ class Query
 
     public function from(string $from): self
     {
+        // @TODO handle nested from clauses
         $this->from = $from;
         return $this;
     }
