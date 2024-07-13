@@ -6,7 +6,7 @@ use Phico\Query\Quote;
 
 class Select
 {
-    protected array $columns;
+    protected array $columns = [];
     protected string $avg = '';
     protected string $count = '';
     protected string $distinct = '';
@@ -17,7 +17,11 @@ class Select
 
     public function __construct(array|string $columns = '')
     {
-        $this->columns = is_string($columns) ? array_filter(explode(', ', $columns)) : $columns;
+
+        if (is_string($columns)) {
+            $columns = explode(', ', $columns);
+        }
+        $this->columns = array_merge($this->columns, array_filter($columns));
     }
     public function getParams(): array
     {
