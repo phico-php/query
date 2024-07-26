@@ -2,6 +2,7 @@
 
 namespace Phico\Query\Operations;
 
+use InvalidArgumentException;
 use Phico\Query\Placeholders;
 use Phico\Query\Quote;
 
@@ -13,6 +14,10 @@ class Insert
 
     public function __construct(array|object $data = [])
     {
+        if (empty($data)) {
+            throw new InvalidArgumentException('Cannot update with an empty data set');
+        }
+
         $this->data = $data;
     }
     public function getParams(): array

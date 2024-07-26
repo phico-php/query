@@ -2,6 +2,7 @@
 
 namespace Phico\Query\Operations;
 
+use InvalidArgumentException;
 use Phico\Query\Quote;
 
 class Update
@@ -10,6 +11,10 @@ class Update
 
     public function __construct(array $data)
     {
+        if (empty($data)) {
+            throw new InvalidArgumentException('Cannot update with an empty data set');
+        }
+
         $this->data = $data;
     }
     public function getParams(): array
