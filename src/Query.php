@@ -4,6 +4,7 @@ namespace Phico\Query;
 
 use LogicException;
 use Phico\Query\Conditions\{Having, Join, Limit, GroupBy, OrderBy, Where, WhereBetween, WhereIn, WhereNull};
+use Phico\Query\Functions\{JsonExtract};
 use Phico\Query\Operations\{Select, Insert, Update, Delete, Truncate};
 
 
@@ -33,6 +34,12 @@ class Query
     {
         return $this->params;
     }
+
+    public function jsonExtract(string $key, string $as = ''): JsonExtract
+    {
+        return new JsonExtract($key, $as);
+    }
+
     public function select($columns = '*'): self
     {
         // @TODO if this is set then add columns instead of replacing select

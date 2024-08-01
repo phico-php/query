@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Phico\Query;
 
+use Phico\Query\Functions\JsonExtract;
+
 
 class Quote
 {
@@ -14,8 +16,12 @@ class Quote
             'pgsql', 'sqlite', 'sqlite2' => '"' . $table . '"',
         };
     }
-    public static function column(string $column, string $dialect): string
+    public static function column(string|object $column, string $dialect): string
     {
+        if ($column instanceof JsonExtract) {
+            return $column->toSql($dialect);
+        }
+
         if (empty($column) or $column === '*') {
             return '*';
         }
