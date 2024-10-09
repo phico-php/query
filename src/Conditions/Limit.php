@@ -14,8 +14,8 @@ class Limit
         if ($limit < 1) {
             throw new LogicException('Limit cannot be less than 1');
         }
-        if (!is_null($offset) and $offset < 1) {
-            throw new LogicException('Offset cannot be less than 1');
+        if (!is_null($offset) and $offset < 0) {
+            throw new LogicException('Offset cannot be less than zero');
         }
         $this->limit = (int) $limit;
         if (!is_null($offset)) {
