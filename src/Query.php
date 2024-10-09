@@ -130,6 +130,8 @@ class Query
         if (!$this->operation instanceof Select) {
             throw new LogicException(sprintf('Cannot call %s on a %s query', __METHOD__, get_class($this->operation)));
         }
+        // unset limit
+        $this->limit = null;
         $this->operation->count($column, $as);
         return $this;
     }
