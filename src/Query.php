@@ -279,6 +279,8 @@ class Query
 
     public function toSql(string $dialect = 'sqlite')
     {
+        // reset params every time we generate the SQL to avoid out of range errors
+        $this->params = [];
         $sql = '';
 
         // from may not be set if this is a nested query, we might only want the where clauses
@@ -296,6 +298,7 @@ class Query
         if (!empty($this->where)) {
             $sql .= ' WHERE';
             foreach ($this->where as $index => $where) {
+                // add logical prefix on subsequent iterations
                 if ($index > 0) {
                     $sql .= ' ' . $where->getType();
                 }
