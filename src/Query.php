@@ -172,6 +172,14 @@ class Query
         return $this;
     }
 
+    public function paginate(int $page, int $show_per_page): self
+    {
+        $offset = $show_per_page * ($page - 1);
+        $this->limit = new Limit($show_per_page, $offset);
+
+        return $this;
+    }
+
     public function groupBy(array|string $column, string $dir = ''): self
     {
         $this->groupby[] = new GroupBy($column, $dir);
