@@ -19,10 +19,6 @@ class WhereNull extends Where
     }
     public function getParams(): array
     {
-        if (isset($this->query)) {
-            return $this->query->getParams();
-        }
-
         return [];
     }
     public function isNested(): bool
