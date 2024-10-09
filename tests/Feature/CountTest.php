@@ -40,3 +40,13 @@ test('can use count() with other fields', function ($dialect, $expected) {
             ['sqlite', 'SELECT COUNT(*) AS "count", "name", "email" FROM "users"'],
             ['pgsql', 'SELECT COUNT(*) AS "count", "name", "email" FROM "users"'],
         ]);
+test('make sure limit() is ignored', function ($dialect, $expected) {
+
+    $query = query()->from('users')->select('name, email')->offset(30)->limit(10)->count();
+    expect($query->toSql($dialect))->toBe($expected);
+
+})->with([
+            ['mysql', 'SELECT COUNT(*) AS `count`, `name`, `email` FROM `users`'],
+            ['sqlite', 'SELECT COUNT(*) AS "count", "name", "email" FROM "users"'],
+            ['pgsql', 'SELECT COUNT(*) AS "count", "name", "email" FROM "users"'],
+        ]);
