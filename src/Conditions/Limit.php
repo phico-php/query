@@ -24,6 +24,15 @@ class Limit
         $this->offset = $offset;
     }
 
+    public function getLimit(): int
+    {
+        return $this->limit;
+    }
+    public function getOffset(): ?int
+    {
+        return $this->offset;
+    }
+
     public function toSql(string $dialect): string
     {
         $sql = "LIMIT {$this->limit}";

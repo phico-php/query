@@ -34,6 +34,10 @@ class Query
     {
         return $this->params;
     }
+    public function getLimit(): ?Limit
+    {
+        return $this->limit;
+    }
 
     public function jsonExtract(string $key, string $as = ''): JsonExtract
     {
